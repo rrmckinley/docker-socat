@@ -1,0 +1,6 @@
+#!/bin/bash
+
+if [ -e /var/run/docker.sock ]
+then
+    socat -d -d TCP-L:4243,fork UNIX:/var/run/docker.sock
+fi
