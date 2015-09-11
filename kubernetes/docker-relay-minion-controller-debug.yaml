@@ -1,24 +1,24 @@
-# Template for running the docker-socat minion in debug mode.
+# Template for running the docker-relay minion in debug mode.
 # Pull the image from Docker Hub only if it is missing on the local host.
 kind: ReplicationController
 apiVersion: v1
 metadata: 
-  name: docker-socat-minion-controller-v1
+  name: docker-relay-minion-controller-v1
   namespace: default
   labels: 
-    k8s-app: docker-socat
+    k8s-app: docker-relay
     version: v1
 spec: 
   replicas: 1
   selector: 
-    k8s-app: docker-socat
-    docker-socat-mode: minion
+    k8s-app: docker-relay
+    docker-relay-mode: minion
     version: v1
   template: 
     metadata: 
       labels: 
-        k8s-app: docker-socat
-        docker-socat-mode: minion
+        k8s-app: docker-relay
+        docker-relay-mode: minion
         version: v1
     spec: 
       volumes: 
@@ -28,9 +28,9 @@ spec:
             path: /var/run/docker.sock
       containers: 
         - 
-          # The docker-socat minion responds to requests on port 4243.
-          name: docker-socat
-          image: kubernetes/docker-socat:latest
+          # The docker-relay minion responds to requests on port 4243.
+          name: docker-relay
+          image: kubernetes/docker-relay:latest
           imagePullPolicy: IfNotPresent
           ports: 
             - 
@@ -40,7 +40,7 @@ spec:
               protocol: TCP
           env: 
             - 
-              name: DOKCER_SOCAT_MODE
+              name: DOKCER_RELAY_MODE
               value: minion
           volumeMounts: 
             - 
@@ -49,5 +49,5 @@ spec:
               mountPath: /var/run/docker.sock
           command:
             - "python"
-            - "./docker_socat.py"
+            - "./docker_relay.py"
             - "--debug"

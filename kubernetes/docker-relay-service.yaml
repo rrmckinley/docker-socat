@@ -1,18 +1,18 @@
 apiVersion: v1
 kind: Service
 metadata: 
-  name: docker-socat
+  name: docker-relay
   namespace: default
   labels: 
-    k8s-app: docker-socat
-    kubernetes.io/name: DockerSocat
+    k8s-app: docker-relay
+    kubernetes.io/name: DockerRelay
     version: v1
 spec: 
   selector: 
-    docker-socat-mode: master
+    docker-relay-mode: master
   ports: 
     - 
-      name: docker-socat
+      name: docker-relay
       port: 5555
-      targetPort: docker-socat
+      targetPort: docker-relay
       protocol: TCP

@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-# Copyright 2015 The docker-socat Authors. All Rights Reserved
+# Copyright 2015 The docker-relay Authors. All Rights Reserved
 #
 # Licensed TBD
 
-# This shell script sets up the docker-socat relay on each node in a kubernetes
+# This shell script sets up the docker-relay relay on each node in a kubernetes
 # cluster. You can run it again to set up a newer image.
 #
 # This script should work on any machine running Linux or MacOSX, but it 
@@ -13,8 +13,8 @@
 # only with clusters running on AWS running Ubuntu 15.04.
 #
 # *** IMPORTANT ***
-# This script must be run from directory where you cloned the docker-socat
-# repository, so ./docker-socat/kubernetes/docker-socat-setup.sh is
+# This script must be run from directory where you cloned the docker-relay
+# repository, so ./docker-relay/kubernetes/docker-relay-setup.sh is
 # the path to the installation script.
 # 
 # To explicitly set the number of minions, you should set the environment
@@ -24,7 +24,7 @@
 # You may specify an explicit path to Kubernetes binaries, which is an optional
 # parameter of this script.
 #
-# This script will restart the docker-socat relay using the latest
+# This script will restart the docker-relay relay using the latest
 # container built in the working directory.
 #
 # The script will print "ALL DONE" if it completed the setup successfully.
@@ -33,12 +33,12 @@
 set -o nounset
 set -o pipefail
 
-# This script and the docker-socat code issues requests to this version
+# This script and the docker-relay code issues requests to this version
 # of the Kubernetes API.
 readonly API_VERSION="v1"
 
-readonly SERVICE_NAME="docker-socat"
-readonly SERVICE_PORT="docker-socat"
+readonly SERVICE_NAME="docker-relay"
+readonly SERVICE_PORT="docker-relay"
 readonly SERVICE_PATH="$(pwd)/${SERVICE_NAME}"
 readonly INSTALL_PATH="${SERVICE_PATH}/kubernetes"
 
@@ -126,7 +126,7 @@ function start_kubernetes_rc() {
     exit 1
   fi
 
-  # scale the docker-socat minion controller.
+  # scale the docker-relay minion controller.
   echo "Scaling replication controller ${1} to ${3} replicas."
   # The "kubectl scale" command is implemented in newer versions of
   # Kubernetes.
@@ -308,11 +308,11 @@ echo "Verify support of Kubernetes API version ${API_VERSION}"
 readonly SUPPORTED_API="$(${KUBECTL} api-versions | sed 's/ /,/g')"
 if [[ !("${SUPPORTED_API}," =~ ",${API_VERSION},") ]]; then
   echo "Kubernetes does not support required API version ${API_VERSION}"
-  echo "You must upgrate Kubernetes in order to install docker-socat"
+  echo "You must upgrate Kubernetes in order to install docker-relay"
   exit 1
 fi
 
-# stop the docker-socat service and replication controllers.
+# stop the docker-relay service and replication controllers.
 stop_kubernetes_service "${SERVICE_NAME}" "${SERVICE_FILE}"
 stop_kubernetes_rc "${MASTER_CONTROLLER_NAME}" "${MASTER_CONTROLLER_FILE}"
 stop_kubernetes_rc "${MINION_CONTROLLER_NAME}" "${MINION_CONTROLLER_FILE}"
@@ -328,7 +328,7 @@ if [[ -z "${NUM_MINIONS:-}" ]]; then
   fi
 fi
 
-#start the docker-socat replication controllers and service.
+#start the docker-relay replication controllers and service.
 start_kubernetes_rc "${MINION_CONTROLLER_NAME}" "${MINION_CONTROLLER_FILE}" "${NUM_MINIONS:-1}"
 start_kubernetes_rc "${MASTER_CONTROLLER_NAME}" "${MASTER_CONTROLLER_FILE}" "${NUM_MASTERS:-1}"
 start_kubernetes_service "${SERVICE_NAME}" "${SERVICE_FILE}"
@@ -344,7 +344,7 @@ echo "${KUBECTL} proxy is running on port ${KUBECTL_PORT}"
 readonly SERVICE_URL="http://localhost:${KUBECTL_PORT}/api/${API_VERSION}/proxy/namespaces/default/services/${SERVICE_NAME}:${SERVICE_PORT}"
 echo "service endoints are available at ${SERVICE_URL}"
 
-# verify that the docker-socat service is healthy.
+# verify that the docker-relay service is healthy.
 echo "Verifying service health."
 verify_service_health ${SERVICE_URL} || {
   echo "FAILED to get service health response."
@@ -357,7 +357,7 @@ verify_minions_health ${SERVICE_URL} || {
   exit 1
 }
 
-# verify that the docker-socat service is working correctly.
+# verify that the docker-relay service is working correctly.
 echo "Verifying service correctness."
 
 verify_service_correctness ${SERVICE_URL} || {

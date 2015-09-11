@@ -1,44 +1,44 @@
-# Template file for docker-socat master in production mode.
+# Template file for docker-relay master in production mode.
 # Always pull the latest binary from Docker Hub.
 # Always run the master in production mode.
 # Expose the master only as a service.
-# See docker-socat-master-controller-debug.yaml for running the
-# docker-socat master in debug mode.
+# See docker-relay-master-controller-debug.yaml for running the
+# docker-relay master in debug mode.
 kind: ReplicationController
 apiVersion: v1
 metadata: 
-  name: docker-socat-master-controller-v1
+  name: docker-relay-master-controller-v1
   namespace: default
   labels: 
-    k8s-app: docker-socat
+    k8s-app: docker-relay
     version: v1
 spec: 
   replicas: 1
   selector: 
-    k8s-app: docker-socat
-    docker-socat-mode: master
+    k8s-app: docker-relay
+    docker-relay-mode: master
     version: v1
   template: 
     metadata: 
       labels: 
-        k8s-app: docker-socat
-        docker-socat-mode: master
+        k8s-app: docker-relay
+        docker-relay-mode: master
         version: v1
     spec: 
       containers: 
         - 
-          name: docker-socat
+          name: docker-relay
           # Change the tag to the latest released image.
-          image: kubernetes/docker-socat:2015-07-01
+          image: kubernetes/docker-relay:2015-09-01
           # Do not change the image pull policy to "Always" because Docker Hub
           # may not be able to respond in time.
           imagePullPolicy: IfNotPresent
           ports: 
             - 
-              name: docker-socat
+              name: docker-relay
               containerPort: 5555
               protocol: TCP
           env: 
             - 
-              name: DOCKER_SOCAT_MODE
+              name: DOCKER_RELAY_MODE
               value: master
