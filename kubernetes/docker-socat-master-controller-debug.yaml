@@ -1,0 +1,46 @@
+# Template file for docker-socat master in debug mode.
+# Pull the binary from Docker Hub only if it missing on the local machine.
+# Always run the master in debug mode.
+# Expose the master as a service and also on local port 5555.
+# See docker-socat-master-controller.yaml for running the
+# docker-socat master in production mode.
+kind: ReplicationController
+apiVersion: v1
+metadata: 
+  name: docker-socat-master-controller-v1
+  namespace: default
+  labels: 
+    k8s-app: docker-socat
+    version: v1
+spec: 
+  replicas: 1
+  selector: 
+    k8s-app: docker-socat
+    docker-socat-mode: master
+    version: v1
+  template: 
+    metadata: 
+      labels: 
+        k8s-app: docker-socat
+        docker-socat-mode: master
+        version: v1
+    spec: 
+      containers: 
+        - 
+          name: docker-socat
+          image: kubernetes/docker-socat:latest
+          imagePullPolicy: IfNotPresent
+          ports: 
+            - 
+              name: docker-socat
+              containerPort: 5555
+              hostPort: 5555
+              protocol: TCP
+          env: 
+            - 
+              name: DOCKER_SOCAT_MODE
+              value: master
+          command:
+            - "python"
+            - "./docker_socat.py"
+            - "--debug"

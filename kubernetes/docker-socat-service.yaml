@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata: 
+  name: docker-socat
+  namespace: default
+  labels: 
+    k8s-app: docker-socat
+    kubernetes.io/name: DockerSocat
+    version: v1
+spec: 
+  selector: 
+    docker-socat-mode: master
+  ports: 
+    - 
+      name: docker-socat
+      port: 5555
+      targetPort: docker-socat
+      protocol: TCP

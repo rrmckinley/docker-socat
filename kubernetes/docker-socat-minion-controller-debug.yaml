@@ -1,0 +1,53 @@
+# Template for running the docker-socat minion in debug mode.
+# Pull the image from Docker Hub only if it is missing on the local host.
+kind: ReplicationController
+apiVersion: v1
+metadata: 
+  name: docker-socat-minion-controller-v1
+  namespace: default
+  labels: 
+    k8s-app: docker-socat
+    version: v1
+spec: 
+  replicas: 1
+  selector: 
+    k8s-app: docker-socat
+    docker-socat-mode: minion
+    version: v1
+  template: 
+    metadata: 
+      labels: 
+        k8s-app: docker-socat
+        docker-socat-mode: minion
+        version: v1
+    spec: 
+      volumes: 
+        - 
+          name: docker-unix-socket
+          hostPath: 
+            path: /var/run/docker.sock
+      containers: 
+        - 
+          # The docker-socat minion responds to requests on port 4243.
+          name: docker-socat
+          image: kubernetes/docker-socat:latest
+          imagePullPolicy: IfNotPresent
+          ports: 
+            - 
+              name: http-docker
+              containerPort: 4243
+              hostPort: 4243
+              protocol: TCP
+          env: 
+            - 
+              name: DOKCER_SOCAT_MODE
+              value: minion
+          volumeMounts: 
+            - 
+              name: docker-unix-socket
+              readOnly: true
+              mountPath: /var/run/docker.sock
+          command:
+            - "python"
+            - "./docker_socat.py"
+            - "--debug"
